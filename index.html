@@ -6,100 +6,117 @@
     <title>Rifa</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+        
+        .header h2 {
+            font-size: 1.5em;
+            margin: 0;
         }
         
         .container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            border-radius: 10px;
+            align-items: center;
+            padding: 10px;
         }
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 5px;
+            width: 100%;
+            max-width: 600px; /* limite de largura para telas grandes */
         }
         
         .square {
             width: 100%;
-            padding-bottom: 100%;
-            background-color: #fff;
-            border: 2px solid #ccc;
+            height: 50px;
+            background-color: white;
+            color: black;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            border: 2px solid #ccc;
+            border-radius: 8px; /* bordas arredondadas */
             cursor: pointer;
-            color: #333;
-            font-weight: bold;
-            font-size: 1em;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s, transform 0.1s;
-        }
-        
-        .square:hover {
-            transform: scale(1.05);
+            transition: background-color 0.3s, border-color 0.3s;
         }
         
         .square.reserved {
-            background-color: #ffa726;
-            color: #fff;
+            background-color: orange;
+            border-color: darkorange; /* borda mais escura para reservado */
         }
         
         .square.paid {
-            background-color: #e53935;
-            color: #fff;
+            background-color: red;
+            border-color: darkred; /* borda mais escura para pago */
         }
         
         .sidebar {
             width: 100%;
+            max-width: 600px; /* limite de largura para telas grandes */
+            margin-top: 20px;
         }
         
         .sidebar h3 {
-            margin: 0 0 10px;
+            margin-top: 0;
+        }
+        
+        .control-panel {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px; /* limite de largura para telas grandes */
+        }
+        
+        .control-panel input {
+            width: 100%;
             padding: 10px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
             border-radius: 5px;
         }
         
         .dropdown {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+            position: relative;
+            display: inline-block;
         }
         
         .dropbtn {
-            background-color: #333;
+            background-color: #4CAF50;
             color: white;
             padding: 10px;
-            font-size: 20px;
+            font-size: 16px;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
+            border-radius: 5px;
         }
         
         .dropdown-content {
             display: none;
             position: absolute;
-            right: 0;
             background-color: #f9f9f9;
             min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 1;
         }
         
@@ -108,37 +125,44 @@
             padding: 12px 16px;
             text-decoration: none;
             display: block;
-            width: 100%;
-            background: none;
             border: none;
+            background: none;
+            width: 100%;
             text-align: left;
-            cursor: pointer;
-            transition: background-color 0.3s;
         }
         
         .dropdown-content button:hover {
-            background-color: #ddd;
+            background-color: #f1f1f1;
         }
         
         .dropdown:hover .dropdown-content {
             display: block;
         }
         
+        @media (max-width: 600px) {
+            .square {
+                height: 40px; /* altura reduzida para telas menores */
+            }
+        
+            .header h1 {
+                font-size: 2em; /* tamanho reduzido do título */
+            }
+        
+            .header h2 {
+                font-size: 1.2em; /* tamanho reduzido da data */
+            }
+        }
+        
     </style>
+    
 </head>
 <body>
+    <header class="header">
+        <h1>Victor e Luana</h1>
+        <h2>09/08/2025</h2>
+    </header>
+    
     <div class="container">
-        <!-- Menu Dropdown -->
-        <div class="dropdown">
-            <button class="dropbtn">⋮</button>
-            <div class="dropdown-content">
-                <button onclick="exportToTxt()">Exportar para TXT</button>
-                <input type="file" id="fileInput" accept=".txt" onchange="importFromTxt(event)" hidden>
-                <button onclick="document.getElementById('fileInput').click()">Inserir TXT</button>
-                <button onclick="resetRaffle()">Reiniciar Rifa</button>
-            </div>
-        </div>
-
         <div class="grid">
             <!-- Gera 150 quadrados numerados -->
             <script>
@@ -154,8 +178,31 @@
         </div>
     </div>
 
+    <div id="control-panel" class="control-panel" style="display: none;">
+        <h3>Painel de Controle</h3>
+        <label for="password">Digite a senha:</label>
+        <input type="password" id="password" />
+        <button onclick="validatePassword()">Entrar</button>
+        <div id="approval-area" style="display: none;">
+            <h4>Reservas Pendentes</h4>
+            <ul id="pending-reservations"></ul>
+            <button onclick="exportToTxt()">Exportar para TXT</button>
+            <input type="file" id="fileInput" accept=".txt" onchange="importFromTxt(event)" hidden>
+            <button onclick="document.getElementById('fileInput').click()">Inserir TXT</button>
+            <button onclick="resetRaffle()">Reiniciar Rifa</button>
+        </div>
+    </div>
+
+    <div class="dropdown">
+        <button class="dropbtn" onclick="openControlPanel()">☰</button>
+        <div class="dropdown-content">
+            <button onclick="openControlPanel()">Acesso ao Painel</button>
+        </div>
+    </div>
+
     <script>
         let holdTimeout;
+        let isControlPanelOpen = false;
 
         window.onload = function() {
             const squaresState = JSON.parse(localStorage.getItem('squaresState')) || {};
@@ -183,15 +230,19 @@
             if (element.classList.contains('reserved')) {
                 element.classList.remove('reserved');
                 element.classList.add('paid');
-                let name = prompt("Digite o nome de quem reservou o número:");
+                let name = element.getAttribute('data-name');
                 if (name) {
-                    element.setAttribute('data-name', name);
                     reservations.push({ name, number });
                 }
-            } else if (element.classList.contains('paid')) {
-                // Já está pago, não faz nada
             } else {
+                const name = prompt("Digite o nome de quem reservou o número:");
+                if (!name) {
+                    alert("Você deve inserir um nome para reservar o número.");
+                    return; // Não permite continuar se o nome não for inserido
+                }
                 element.classList.add('reserved');
+                element.setAttribute('data-name', name);
+                reservations.push({ name, number });
             }
 
             reservations.sort((a, b) => a.number - b.number);
@@ -282,6 +333,53 @@
                 localStorage.removeItem('squaresState');
                 localStorage.removeItem('reservations');
                 window.location.reload();
+            }
+        }
+
+        function openControlPanel() {
+            if (isControlPanelOpen) {
+                document.getElementById('control-panel').style.display = 'none';
+                isControlPanelOpen = false;
+            } else {
+                document.getElementById('control-panel').style.display = 'block';
+                isControlPanelOpen = true;
+            }
+        }
+
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            if (password === "090825") {
+                document.getElementById('approval-area').style.display = 'block';
+                loadPendingReservations();
+                alert("Acesso ao painel de controle concedido.");
+            } else {
+                alert("Senha incorreta. Tente novamente.");
+            }
+        }
+
+        function loadPendingReservations() {
+            const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+            const pendingReservations = reservations.filter(reservation => {
+                const square = document.querySelector(`#square-${reservation.number}`);
+                return square && square.classList.contains('reserved') && !square.classList.contains('paid');
+            });
+
+            const pendingList = document.getElementById('pending-reservations');
+            pendingList.innerHTML = '';
+            pendingReservations.forEach(reservation => {
+                pendingList.innerHTML += `<li>${reservation.name} - Número ${reservation.number} <button onclick="approveReservation(${reservation.number})">Aprovar</button></li>`;
+            });
+        }
+
+        function approveReservation(number) {
+            const square = document.getElementById(`square-${number}`);
+            if (square && square.classList.contains('reserved')) {
+                square.classList.remove('reserved');
+                square.classList.add('paid');
+                alert(`Reserva para o número ${number} aprovada.`);
+                loadPendingReservations(); // Atualiza a lista de reservas pendentes
+            } else {
+                alert("Esta reserva já foi aprovada ou não existe.");
             }
         }
     </script>
