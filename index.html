@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifa</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 10px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 10px;
+        }
+        
+        .square {
+            width: 100%;
+            padding-bottom: 100%;
+            background-color: #fff;
+            border: 2px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: #333;
+            font-weight: bold;
+            font-size: 1em;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, transform 0.1s;
+        }
+        
+        .square:hover {
+            transform: scale(1.05);
+        }
+        
+        .square.reserved {
+            background-color: #ffa726;
+            color: #fff;
+        }
+        
+        .square.paid {
+            background-color: #e53935;
+            color: #fff;
+        }
+        
+        .sidebar {
+            width: 100%;
+        }
+        
+        .sidebar h3 {
+            margin: 0 0 10px;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+        }
+        
+        .dropdown {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        .dropbtn {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        
+        .dropdown-content button {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-content button:hover {
+            background-color: #ddd;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Menu Dropdown -->
+        <div class="dropdown">
+            <button class="dropbtn">⋮</button>
+            <div class="dropdown-content">
+                <button onclick="exportToTxt()">Exportar para TXT</button>
+                <input type="file" id="fileInput" accept=".txt" onchange="importFromTxt(event)" hidden>
+                <button onclick="document.getElementById('fileInput').click()">Inserir TXT</button>
+                <button onclick="resetRaffle()">Reiniciar Rifa</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Gera 150 quadrados numerados -->
+            <script>
+                for (let i = 1; i <= 150; i++) {
+                    document.write(`<div class="square" id="square-${i}" onclick="toggleState(this, ${i})" onmousedown="startHold(${i})" onmouseup="clearHold()">${i}</div>`);
+                }
+            </script>
+        </div>
+        
+        <div class="sidebar">
+            <h3>Números Reservados</h3>
+            <ul id="reservation-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        let holdTimeout;
+
+        window.onload = function() {
+            const squaresState = JSON.parse(localStorage.getItem('squaresState')) || {};
+            const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+
+            reservations.sort((a, b) => a.number - b.number);
+            
+            for (let i = 1; i <= 150; i++) {
+                const square = document.getElementById(`square-${i}`);
+                if (squaresState[i]) {
+                    square.classList.add(squaresState[i]);
+                    if (squaresState[i] === 'paid') {
+                        square.setAttribute('data-name', reservations.find(r => r.number === i).name);
+                    }
+                }
+            }
+
+            updateReservationList(reservations);
+        };
+
+        function toggleState(element, number) {
+            const squaresState = JSON.parse(localStorage.getItem('squaresState')) || {};
+            const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+
+            if (element.classList.contains('reserved')) {
+                element.classList.remove('reserved');
+                element.classList.add('paid');
+                let name = prompt("Digite o nome de quem reservou o número:");
+                if (name) {
+                    element.setAttribute('data-name', name);
+                    reservations.push({ name, number });
+                }
+            } else if (element.classList.contains('paid')) {
+                // Já está pago, não faz nada
+            } else {
+                element.classList.add('reserved');
+            }
+
+            reservations.sort((a, b) => a.number - b.number);
+            squaresState[number] = element.className.replace('square ', '');
+            localStorage.setItem('squaresState', JSON.stringify(squaresState));
+            localStorage.setItem('reservations', JSON.stringify(reservations));
+            updateReservationList(reservations);
+        }
+
+        function updateReservationList(reservations) {
+            const reservationList = document.getElementById('reservation-list');
+            reservationList.innerHTML = '';
+            reservations.forEach(reservation => {
+                reservationList.innerHTML += `<li>${reservation.name} - Número ${reservation.number}</li>`;
+            });
+        }
+
+        function startHold(number) {
+            holdTimeout = setTimeout(function() {
+                const confirmation = confirm("Deseja liberar este número?");
+                if (confirmation) {
+                    clearState(number);
+                }
+            }, 3000);
+        }
+
+        function clearHold() {
+            clearTimeout(holdTimeout);
+        }
+
+        function clearState(number) {
+            const element = document.getElementById(`square-${number}`);
+            element.className = 'square';
+            element.removeAttribute('data-name');
+
+            const squaresState = JSON.parse(localStorage.getItem('squaresState')) || {};
+            const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+
+            delete squaresState[number];
+            const index = reservations.findIndex(r => r.number === number);
+            if (index !== -1) {
+                reservations.splice(index, 1);
+            }
+
+            reservations.sort((a, b) => a.number - b.number);
+            localStorage.setItem('squaresState', JSON.stringify(squaresState));
+            localStorage.setItem('reservations', JSON.stringify(reservations));
+            updateReservationList(reservations);
+        }
+
+        function exportToTxt() {
+            const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+            let txtContent = reservations.map(r => `${r.name} - Número ${r.number}`).join('\n');
+            let blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "reservas_rifa.txt";
+            link.click();
+        }
+
+        function importFromTxt(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const lines = e.target.result.split('\n');
+                    const reservations = [];
+                    const squaresState = {};
+
+                    lines.forEach(line => {
+                        const [name, numberPart] = line.split(' - Número ');
+                        const number = parseInt(numberPart);
+                        reservations.push({ name, number });
+                        squaresState[number] = 'paid';
+                    });
+
+                    reservations.sort((a, b) => a.number - b.number);
+                    localStorage.setItem('reservations', JSON.stringify(reservations));
+                    localStorage.setItem('squaresState', JSON.stringify(squaresState));
+                    window.location.reload();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function resetRaffle() {
+            if (confirm("Tem certeza que deseja reiniciar a rifa? Todos os dados serão perdidos.")) {
+                localStorage.removeItem('squaresState');
+                localStorage.removeItem('reservations');
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
